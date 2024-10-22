@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import uo276255.modelo.empleado.EmpleadoDTO;
 
 /**
@@ -35,18 +36,20 @@ public class ModificarEmpleadoVista extends JFrame {
      */
     public ModificarEmpleadoVista() {
         setTitle("Modificar Empleado");
-        setBounds(100, 100, 1500, 450);
+        setBounds(100, 100, 800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(new Color(245, 245, 245));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        Font fontLabel = new Font("Arial", Font.PLAIN, 14);
-        Font fontField = new Font("Arial", Font.PLAIN, 14);
+        Font fontLabel = new Font("Arial", Font.BOLD, 16);
+        Font fontField = new Font("Arial", Font.PLAIN, 16);
 
         JLabel lblNombre = new JLabel("Nombre:");
         lblNombre.setFont(fontLabel);
@@ -79,6 +82,7 @@ public class ModificarEmpleadoVista extends JFrame {
 
         textDni = new JTextField();
         textDni.setFont(fontField);
+        textDni.setEditable(false);
         gbc.gridx = 1; gbc.gridy = 2;
         gbc.gridwidth = 3;
         panel.add(textDni, gbc);
@@ -103,6 +107,7 @@ public class ModificarEmpleadoVista extends JFrame {
 
         textFechaNacimiento = new JTextField();
         textFechaNacimiento.setFont(fontField);
+        textFechaNacimiento.setEditable(false);
         gbc.gridx = 1; gbc.gridy = 4;
         gbc.gridwidth = 3;
         panel.add(textFechaNacimiento, gbc);
@@ -132,10 +137,10 @@ public class ModificarEmpleadoVista extends JFrame {
         panel.add(comboTipoEmpleado, gbc);
 
         gbc.gridwidth = 1;
-        JLabel lblPosicion = new JLabel("Posición:");
-        lblPosicion.setFont(fontLabel);
+        JLabel lblPosición = new JLabel("Posición:");
+        lblPosición.setFont(fontLabel);
         gbc.gridx = 0; gbc.gridy = 7;
-        panel.add(lblPosicion, gbc);
+        panel.add(lblPosición, gbc);
 
         comboPosicion = new JComboBox<>(posicionesDeportivas);
         comboPosicion.setFont(fontField);
@@ -145,12 +150,22 @@ public class ModificarEmpleadoVista extends JFrame {
 
         gbc.gridwidth = 1;
         btnModificar = new JButton("Modificar");
-        btnModificar.setFont(new Font("Arial", Font.BOLD, 16));
+        btnModificar.setFont(new Font("Arial", Font.BOLD, 18));
         btnModificar.setBackground(new Color(0, 153, 204));
         btnModificar.setForeground(Color.WHITE);
         btnModificar.setFocusPainted(false);
+        btnModificar.setPreferredSize(new Dimension(150, 40));
+        btnModificar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnModificar.setBackground(new Color(0, 123, 180));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnModificar.setBackground(new Color(0, 153, 204));
+            }
+        });
         gbc.gridx = 0; gbc.gridy = 8;
         gbc.gridwidth = 4;
+        gbc.anchor = GridBagConstraints.CENTER;
         panel.add(btnModificar, gbc);
 
         getContentPane().add(panel);
@@ -231,7 +246,12 @@ public class ModificarEmpleadoVista extends JFrame {
      * @return Fecha de nacimiento del empleado.
      */
     public LocalDate getFechaNacimiento() {
-        return LocalDate.parse(textFechaNacimiento.getText());
+        try {
+            return LocalDate.parse(textFechaNacimiento.getText());
+        } catch (DateTimeParseException e) {
+            mostrarMensajeError("Formato de fecha de nacimiento incorrecto. Utilice el formato yyyy-MM-dd.");
+            return null;
+        }
     }
 
     /**
@@ -240,7 +260,12 @@ public class ModificarEmpleadoVista extends JFrame {
      * @return Salario anual bruto del empleado.
      */
     public double getSalarioAnualBruto() {
-        return Double.parseDouble(textSalario.getText());
+        try {
+            return Double.parseDouble(textSalario.getText());
+        } catch (NumberFormatException e) {
+            mostrarMensajeError("Formato de salario incorrecto. Ingrese un número válido.");
+            return 0;
+        }
     }
 
     /**

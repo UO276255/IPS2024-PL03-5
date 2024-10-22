@@ -29,7 +29,7 @@ public class EmpleadoModel {
     private static final String SELECT_NO_DEPORTIVOS = "SELECT id_empleado, nombre, apellido, dni, telefono, fecha_nacimiento, tipo_empleado, tipo_detalle, salario_anual_bruto FROM empleados WHERE tipo_empleado = 'No Deportivo';";
     private static final String OBTENER_HORARIO = "SELECT hora_inicio, hora_fin, es_semanal, dia_semana, fecha_especifica FROM horarios WHERE id_empleado = ?";
     private static final String INSERT_HORARIO = "INSERT INTO horarios (id_empleado, hora_inicio, hora_fin, es_semanal, dia_semana, fecha_especifica) VALUES (?, ?, ?, ?, ?, ?)";
-
+    private static final String ELIMINAR_HORARIO =  "DELETE FROM horarios WHERE id_empleado = ? AND hora_inicio = ? AND hora_fin = ? AND es_semanal = ? AND (dia_semana = ? OR fecha_especifica = ?)";
 
     /**
      * Obtiene un empleado por su ID.
@@ -220,6 +220,24 @@ public class EmpleadoModel {
             stmt.executeUpdate();
         }
     }
+    
+    public void eliminarHorario(Connection conn, EmpleadoDTO empleado, HorarioDTO horario) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(ELIMINAR_HORARIO)) {
+            stmt.setInt(1, Integer.parseInt(empleado.getId()));
+            stmt.setTime(2, Time.valueOf(horario.getHoraInicio()));
+            stmt.setTime(3, Time.valueOf(horario.getHoraFin()));
+            stmt.setBoolean(4, horario.esSemanal());
+            if (horario.esSemanal()) {
+                stmt.setInt(5, horario.getDiaSemana().getValue());
+                stmt.setNull(6, Types.DATE);
+            } else {
+                stmt.setNull(5, Types.INTEGER);
+                stmt.setDate(6, Date.valueOf(horario.getFechaEspecifica()));
+            }
+            stmt.executeUpdate();
+        }
+    }
+
     
     public List<HorarioDTO> obtenerHorariosEmpleado(Connection conn, EmpleadoDTO empleado) throws SQLException {
         List<HorarioDTO> horarios = new ArrayList<>();

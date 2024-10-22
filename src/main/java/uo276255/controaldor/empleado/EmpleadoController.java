@@ -105,11 +105,26 @@ public class EmpleadoController {
             vista.mostrarMensajeError("Debe seleccionar un empleado.");
             return;
         }
-
         try {
             HorarioDTO nuevoHorario = vista.obtenerDatosHorario();
+
+            if (!nuevoHorario.esSemanal()) {
+                DayOfWeek diaSemana = nuevoHorario.getFechaEspecifica().getDayOfWeek();                       
+                List<HorarioDTO> horariosActuales = empleadoSeleccionado.getHorarios(); 
+                for (HorarioDTO horario : horariosActuales) {
+                	System.out.println(horario.getDiaSemana().getValue() + "	" + diaSemana.getValue());
+                    if (horario.esSemanal() && horario.getDiaSemana().getValue() == diaSemana.getValue()) {
+                    	
+                        modelo.eliminarHorario(conn,empleadoSeleccionado,horario);
+                        break; 
+                    }
+                }
+            }
+
+            // Agregar el nuevo horario al empleado
             empleadoSeleccionado.agregarHorarioSemanal(nuevoHorario);
 
+            // Persistir en la base de datos
             modelo.agregarHorario(conn, empleadoSeleccionado, nuevoHorario);
 
             vista.mostrarMensajeExito("Horario agregado correctamente.");
@@ -168,28 +183,6 @@ public class EmpleadoController {
             vistaAgregar.mostrarMensajeError("Error al agregar el empleado: " + e.getMessage());
         }
     }
-
-    public void agregarHorarioSemanal(EmpleadoDTO empleado, DayOfWeek diaSemana, LocalTime horaInicio, LocalTime horaFin) {
-        try {
-            HorarioDTO horario = new HorarioDTO(diaSemana, horaInicio, horaFin);
-            empleado.agregarHorarioSemanal(horario);
-            // Mostrar mensaje de éxito en la vista
-        } catch (IllegalArgumentException e) {
-            // Mostrar mensaje de error en la vista
-        }
-    }
-
-    public void agregarHorarioEspecifico(EmpleadoDTO empleado, LocalDate fechaEspecifica, LocalTime horaInicio, LocalTime horaFin) {
-        try {
-            HorarioDTO horario = new HorarioDTO(fechaEspecifica, horaInicio, horaFin);
-            empleado.agregarHorarioEspecifico(horario);
-            // Mostrar mensaje de éxito en la vista
-        } catch (IllegalArgumentException e) {
-            // Mostrar mensaje de error en la vista
-        }
-    }
-
-    
     /**
      * Cargar la lista de empleados desde la base de datos.
      */
@@ -311,6 +304,6 @@ public class EmpleadoController {
      * @return true si el salario es mayor que 0, false de lo contrario.
      */
     private boolean validarSalario(double salario) {
-        return salario > 0;
+        return salario >= 0;
     }
 }

@@ -23,3 +23,31 @@ CREATE TABLE horarios (
     fecha_especifica DATE,
     FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 );
+
+CREATE TABLE campañas (
+    id_campaña INTEGER PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    fase integer NOT NULL,
+    numeroAcciones INTEGER NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    CHECK (fecha_inicio <= fecha_fin)
+);
+
+CREATE TABLE accionistas (
+    id_accionista INTEGER PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    dni VARCHAR(15) NOT NULL UNIQUE,
+    telefono VARCHAR(20),
+    email VARCHAR(100)
+);
+
+CREATE TABLE acciones (
+    id_accion VARCHAR(50) PRIMARY KEY,
+    id_empleado INTEGER NOT NULL,
+    id_campaña INTEGER NOT NULL,
+    id_accionista INTEGER NOT NULL,
+    en_venta BOOLEAN,
+    FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
+    FOREIGN KEY (id_campaña) REFERENCES campañas(id_campaña)
+);

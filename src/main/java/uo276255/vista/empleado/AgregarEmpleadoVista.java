@@ -1,31 +1,33 @@
 package uo276255.vista.empleado;
 
 import javax.swing.*;
+import org.jdatepicker.impl.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.ZoneId;
+import java.util.Properties;
 
 /**
  * Clase que representa la vista para agregar empleados.
  */
 public class AgregarEmpleadoVista extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private JTextField textNombre;
+    private static final long serialVersionUID = 1L;
+    private JTextField textNombre;
     private JTextField textApellido;
     private JTextField textDni;
     private JTextField textTelefono;
-    private JTextField textFechaNacimiento;
+    private JDatePickerImpl datePickerFechaNacimiento;
     private JTextField textSalario;
     private JComboBox<String> comboTipoEmpleado;
     private JComboBox<String> comboPosicion;
     private JButton btnAgregar;
     private final String[] posicionesDeportivas = {"Jugador", "Entrenador"};
     private final String[] posicionesNoDeportivas = {
-        "Gerente", "Vendedor de entradas/abonos", "Encargado de tienda", 
-        "Gestor de instalaciones", "Empleados de tienda", 
+        "Gerente", "Vendedor de entradas/abonos", "Encargado de tienda",
+        "Gestor de instalaciones", "Empleados de tienda",
         "Jardinería", "Cocina", "Director de comunicaciones"
     };
 
@@ -34,19 +36,21 @@ public class AgregarEmpleadoVista extends JFrame {
      */
     public AgregarEmpleadoVista() {
         setTitle("Añadir Empleado");
-        setBounds(100, 100, 450, 450);
+        setBounds(100, 100, 600, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null); 
+        setLocationRelativeTo(null);
         setResizable(false);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(new Color(245, 245, 245));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); 
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        Font fontLabel = new Font("Arial", Font.PLAIN, 14);
-        Font fontField = new Font("Arial", Font.PLAIN, 14);
+        Font fontLabel = new Font("Arial", Font.BOLD, 16);
+        Font fontField = new Font("Arial", Font.PLAIN, 16);
 
         JLabel lblNombre = new JLabel("Nombre:");
         lblNombre.setFont(fontLabel);
@@ -88,15 +92,22 @@ public class AgregarEmpleadoVista extends JFrame {
         gbc.gridx = 1; gbc.gridy = 3;
         panel.add(textTelefono, gbc);
 
-        JLabel lblFechaNacimiento = new JLabel("Fecha Nacimiento (yyyy-mm-dd):");
+        JLabel lblFechaNacimiento = new JLabel("Fecha Nacimiento:");
         lblFechaNacimiento.setFont(fontLabel);
         gbc.gridx = 0; gbc.gridy = 4;
         panel.add(lblFechaNacimiento, gbc);
 
-        textFechaNacimiento = new JTextField();
-        textFechaNacimiento.setFont(fontField);
+        // Configuración del JDatePicker
+        UtilDateModel model = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Hoy");
+        p.put("text.month", "Mes");
+        p.put("text.year", "Año");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        datePickerFechaNacimiento = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        datePickerFechaNacimiento.getJFormattedTextField().setFont(fontField);
         gbc.gridx = 1; gbc.gridy = 4;
-        panel.add(textFechaNacimiento, gbc);
+        panel.add(datePickerFechaNacimiento, gbc);
 
         JLabel lblSalario = new JLabel("Salario:");
         lblSalario.setFont(fontLabel);
@@ -123,7 +134,7 @@ public class AgregarEmpleadoVista extends JFrame {
         gbc.gridx = 0; gbc.gridy = 7;
         panel.add(lblPosicion, gbc);
 
-        comboPosicion = new JComboBox<>(posicionesDeportivas); 
+        comboPosicion = new JComboBox<>(posicionesDeportivas);
         comboPosicion.setFont(fontField);
         gbc.gridx = 1; gbc.gridy = 7;
         panel.add(comboPosicion, gbc);
@@ -136,18 +147,51 @@ public class AgregarEmpleadoVista extends JFrame {
         });
 
         btnAgregar = new JButton("Agregar");
-        btnAgregar.setFont(new Font("Arial", Font.BOLD, 16));
-        btnAgregar.setBackground(new Color(0, 153, 204)); 
-        btnAgregar.setForeground(Color.WHITE); 
+        btnAgregar.setFont(new Font("Arial", Font.BOLD, 18));
+        btnAgregar.setBackground(new Color(0, 153, 204));
+        btnAgregar.setForeground(Color.WHITE);
         btnAgregar.setFocusPainted(false);
-        gbc.gridx = 1; gbc.gridy = 8;
-        gbc.gridwidth = 2; 
-        gbc.anchor = GridBagConstraints.CENTER; 
+        btnAgregar.setPreferredSize(new Dimension(150, 40));
+        btnAgregar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnAgregar.setBackground(new Color(0, 123, 180));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnAgregar.setBackground(new Color(0, 153, 204));
+            }
+        });
+        gbc.gridx = 0; gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
         panel.add(btnAgregar, gbc);
 
         getContentPane().add(panel);
 
-        pack(); 
+        pack();
+    }
+
+    /**
+     * Formateador personalizado para el JDatePicker.
+     */
+    class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+        private static final long serialVersionUID = 1L;
+        private String datePattern = "yyyy-MM-dd";
+        private java.text.SimpleDateFormat dateFormatter = new java.text.SimpleDateFormat(datePattern);
+
+        @Override
+        public Object stringToValue(String text) throws java.text.ParseException {
+            return dateFormatter.parse(text);
+        }
+
+        @Override
+        public String valueToString(Object value) throws java.text.ParseException {
+            if (value != null) {
+                java.util.Calendar cal = (java.util.Calendar) value;
+                return dateFormatter.format(cal.getTime());
+            }
+            return "";
+        }
     }
 
     /**
@@ -164,7 +208,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene el nombre ingresado.
-     * 
+     *
      * @return Nombre del empleado.
      */
     public String getNombre() {
@@ -173,7 +217,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene el apellido ingresado.
-     * 
+     *
      * @return Apellido del empleado.
      */
     public String getApellido() {
@@ -182,7 +226,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene el DNI ingresado.
-     * 
+     *
      * @return DNI del empleado.
      */
     public String getDni() {
@@ -191,7 +235,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene el teléfono ingresado.
-     * 
+     *
      * @return Teléfono del empleado.
      */
     public String getTelefono() {
@@ -200,7 +244,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene la posición seleccionada.
-     * 
+     *
      * @return Posición del empleado.
      */
     public String getPosicion() {
@@ -209,7 +253,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Obtiene el tipo de empleado seleccionado.
-     * 
+     *
      * @return Tipo de empleado.
      */
     public String getTipoEmpleado() {
@@ -217,21 +261,22 @@ public class AgregarEmpleadoVista extends JFrame {
     }
 
     /**
-     * Obtiene la fecha de nacimiento ingresada.
-     * 
-     * @return Fecha de nacimiento del empleado, o null si la fecha es inválida.
+     * Obtiene la fecha de nacimiento seleccionada.
+     *
+     * @return Fecha de nacimiento del empleado, o null si no se ha seleccionado ninguna fecha.
      */
     public LocalDate getFechaNacimiento() {
-        try {
-            return LocalDate.parse(textFechaNacimiento.getText());
-        } catch (DateTimeParseException e) {
+        if (datePickerFechaNacimiento.getModel().getValue() != null) {
+            java.util.Date selectedDate = (java.util.Date) datePickerFechaNacimiento.getModel().getValue();
+            return selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } else {
             return null;
         }
     }
 
     /**
      * Obtiene el salario ingresado.
-     * 
+     *
      * @return Salario anual del empleado, o 0 si el formato es incorrecto.
      */
     public double getSalario() {
@@ -244,7 +289,7 @@ public class AgregarEmpleadoVista extends JFrame {
 
     /**
      * Agrega un ActionListener al botón de agregar.
-     * 
+     *
      * @param actionListener El ActionListener que se ejecutará cuando se presione el botón.
      */
     public void agregarListenerAgregar(ActionListener actionListener) {
@@ -252,20 +297,45 @@ public class AgregarEmpleadoVista extends JFrame {
     }
 
     /**
-     * Muestra un mensaje de éxito en un cuadro de diálogo.
-     * 
+     * Muestra un mensaje de éxito en un cuadro de diálogo y cierra la ventana.
+     *
      * @param mensaje El mensaje de éxito a mostrar.
      */
     public void mostrarMensajeExito(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        dispose(); // Cerrar la ventana después de mostrar el mensaje de éxito
     }
 
     /**
      * Muestra un mensaje de error en un cuadro de diálogo.
-     * 
+     *
      * @param mensaje El mensaje de error a mostrar.
      */
     public void mostrarMensajeError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+/**
+ * Formateador personalizado para el JDatePicker.
+ */
+class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+    private static final long serialVersionUID = 1L;
+    private String datePattern = "yyyy-MM-dd";
+    private java.text.SimpleDateFormat dateFormatter = new java.text.SimpleDateFormat(datePattern);
+
+    @Override
+    public Object stringToValue(String text) throws java.text.ParseException {
+        return dateFormatter.parse(text);
+    }
+
+    @Override
+    public String valueToString(Object value) throws java.text.ParseException {
+        if (value != null) {
+            java.util.Calendar cal = (java.util.Calendar) value;
+            return dateFormatter.format(cal.getTime());
+        }
+        return "";
     }
 }

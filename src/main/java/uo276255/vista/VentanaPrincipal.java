@@ -29,20 +29,26 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal() {
         setTitle("Gestión de Empleados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 600, 300); // Aumentamos el ancho para acomodar el nuevo botón
+        setBounds(100, 100, 800, 400); // Aumentamos el ancho y alto para acomodar el nuevo diseño
         setResizable(false);
         setLocationRelativeTo(null);
 
         setLayout(new BorderLayout(10, 10));
 
+        // Panel Título
         JPanel panelTitulo = new JPanel();
         JLabel titulo = new JLabel("Sistema de Gestión de Empleados", JLabel.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        titulo.setFont(new Font("Arial", Font.BOLD, 24));
         titulo.setForeground(new Color(0, 102, 204));
+        panelTitulo.setBackground(new Color(230, 230, 250));
         panelTitulo.add(titulo);
         add(panelTitulo, BorderLayout.NORTH);
 
-        JPanel panelBotones = new JPanel(new GridLayout(1, 3, 20, 10)); // Cambiamos a GridLayout de 1 fila y 3 columnas
+        // Panel Botones
+        JPanel panelBotones = new JPanel(new GridLayout(2, 2, 20, 20)); // Cambiamos a GridLayout de 2 filas y 2 columnas
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panelBotones.setBackground(new Color(245, 245, 245));
+
         btnAñadirEmpleado = new JButton("Añadir Empleado");
         btnModificarEliminarEmpleado = new JButton("Modificar/Borrar Empleado");
         btnAgregarHorario = new JButton("Agregar Horario"); // Inicializamos el nuevo botón
@@ -52,6 +58,7 @@ public class VentanaPrincipal extends JFrame {
         btnModificarEliminarEmpleado.setFont(buttonFont);
         btnAgregarHorario.setFont(buttonFont); // Establecemos la fuente del nuevo botón
 
+        // Estilos de los botones
         btnAñadirEmpleado.setBackground(new Color(51, 153, 255));
         btnAñadirEmpleado.setForeground(Color.WHITE);
         btnModificarEliminarEmpleado.setBackground(new Color(255, 102, 102));
@@ -59,15 +66,49 @@ public class VentanaPrincipal extends JFrame {
         btnAgregarHorario.setBackground(new Color(102, 204, 102)); // Establecemos el color del nuevo botón
         btnAgregarHorario.setForeground(Color.WHITE);
 
+        // Efectos de hover para los botones
+        btnAñadirEmpleado.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnAñadirEmpleado.setBackground(new Color(0, 123, 255));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnAñadirEmpleado.setBackground(new Color(51, 153, 255));
+            }
+        });
+
+        btnModificarEliminarEmpleado.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnModificarEliminarEmpleado.setBackground(new Color(255, 77, 77));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnModificarEliminarEmpleado.setBackground(new Color(255, 102, 102));
+            }
+        });
+
+        btnAgregarHorario.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnAgregarHorario.setBackground(new Color(76, 175, 80));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnAgregarHorario.setBackground(new Color(102, 204, 102));
+            }
+        });
+
         panelBotones.add(btnAñadirEmpleado);
         panelBotones.add(btnModificarEliminarEmpleado);
         panelBotones.add(btnAgregarHorario); // Añadimos el nuevo botón al panel
 
         add(panelBotones, BorderLayout.CENTER);
 
+        // Panel Inferior
         JPanel panelInferior = new JPanel();
+        panelInferior.setBackground(new Color(230, 230, 250));
+        JLabel lblFooter = new JLabel("© 2024 Empresa de Gestión de Empleados");
+        lblFooter.setFont(new Font("Arial", Font.ITALIC, 12));
+        panelInferior.add(lblFooter);
         add(panelInferior, BorderLayout.SOUTH);
 
+        // Action Listeners
         btnAñadirEmpleado.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -82,7 +123,6 @@ public class VentanaPrincipal extends JFrame {
             }
         });
 
-        // Añadimos el ActionListener para el nuevo botón
         btnAgregarHorario.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
