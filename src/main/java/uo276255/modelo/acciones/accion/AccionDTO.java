@@ -1,4 +1,4 @@
-package uo276255.modelo.acciones;
+package uo276255.modelo.acciones.accion;
 
 /**
  * Data Transfer Object (DTO) para representar una Acción.

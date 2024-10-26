@@ -46,7 +46,7 @@ public class Database extends DbUtil {
     public void createDatabase(boolean onlyOnce) {
         if (!databaseCreated || !onlyOnce) {
             executeScript(SQL_SCHEMA);
-            databaseCreated = true;  // Marcar la base de datos como creada
+            databaseCreated = true;  
         }
     }
 

@@ -113,18 +113,14 @@ public class EmpleadoController {
                 List<HorarioDTO> horariosActuales = empleadoSeleccionado.getHorarios(); 
                 for (HorarioDTO horario : horariosActuales) {
                 	System.out.println(horario.getDiaSemana().getValue() + "	" + diaSemana.getValue());
-                    if (horario.esSemanal() && horario.getDiaSemana().getValue() == diaSemana.getValue()) {
-                    	
+                    if (horario.esSemanal() && horario.getDiaSemana().getValue() == diaSemana.getValue()) {           
                         modelo.eliminarHorario(conn,empleadoSeleccionado,horario);
                         break; 
                     }
                 }
             }
-
-            // Agregar el nuevo horario al empleado
             empleadoSeleccionado.agregarHorarioSemanal(nuevoHorario);
 
-            // Persistir en la base de datos
             modelo.agregarHorario(conn, empleadoSeleccionado, nuevoHorario);
 
             vista.mostrarMensajeExito("Horario agregado correctamente.");

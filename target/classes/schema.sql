@@ -19,19 +19,17 @@ CREATE TABLE horarios (
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     es_semanal BOOLEAN NOT NULL,
-    dia_semana INTEGER, /* Usar valores de 1 (Lunes) a 7 (Domingo) */
+    dia_semana INTEGER, 
     fecha_especifica DATE,
     FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 );
 
 CREATE TABLE campañas (
-    id_campaña INTEGER PRIMARY KEY,
+    id_campaña VARCHAR(50) PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     fase integer NOT NULL,
     numeroAcciones INTEGER NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
-    CHECK (fecha_inicio <= fecha_fin)
+    activa BOOLEAN
 );
 
 CREATE TABLE accionistas (
@@ -39,15 +37,26 @@ CREATE TABLE accionistas (
     nombre VARCHAR(50) NOT NULL,
     dni VARCHAR(15) NOT NULL UNIQUE,
     telefono VARCHAR(20),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    maximoAcciones integer
 );
 
 CREATE TABLE acciones (
     id_accion VARCHAR(50) PRIMARY KEY,
     id_empleado INTEGER NOT NULL,
-    id_campaña INTEGER NOT NULL,
+    id_campaña VARCHAR(50) NOT NULL,
     id_accionista INTEGER NOT NULL,
     en_venta BOOLEAN,
     FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
     FOREIGN KEY (id_campaña) REFERENCES campañas(id_campaña)
+);
+
+CREATE TABLE accionista_campaña (
+    id_accionista INTEGER,
+    id_campaña VARCHAR(50),
+    max_acciones INTEGER NOT NULL,
+    PRIMARY KEY (id_accionista, id_campaña),
+    FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
+    FOREIGN KEY (id_campaña) REFERENCES campañas(id_campaña),
+    CHECK (max_acciones > 0)
 );

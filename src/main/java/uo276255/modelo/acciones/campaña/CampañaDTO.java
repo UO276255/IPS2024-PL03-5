@@ -1,11 +1,9 @@
-package uo276255.modelo.acciones;
+package uo276255.modelo.acciones.campaña;
 
 public class CampañaDTO {
     private int idCampaña;
     private String nombre;
     private int numeroAcciones;
-    private String fechaInicio;
-    private String fechaFin;
     private int fase;
 
 
@@ -23,13 +21,11 @@ public class CampañaDTO {
      * @param fechaInicio Fecha de inicio de la campaña.
      * @param fechaFin Fecha de finalización de la campaña.
      */
-    public CampañaDTO(int idCampaña, String nombre,int fase, int numeroAcciones, String fechaInicio, String fechaFin) {
+    public CampañaDTO(int idCampaña, String nombre,int fase, int numeroAcciones) {
         this.idCampaña = idCampaña;
         this.nombre = nombre;
         this.fase = fase;
         this.numeroAcciones = numeroAcciones;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
     }
 
     /**
@@ -108,42 +104,6 @@ public class CampañaDTO {
     }
 
     /**
-     * Obtiene la fecha de inicio de la campaña.
-     *
-     * @return Fecha de inicio de la campaña.
-     */
-    public String getFechaInicio() {
-        return fechaInicio;
-    }
-
-    /**
-     * Establece la fecha de inicio de la campaña.
-     *
-     * @param fechaInicio Fecha de inicio de la campaña.
-     */
-    public void setFechaInicio(String fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    /**
-     * Obtiene la fecha de finalización de la campaña.
-     *
-     * @return Fecha de finalización de la campaña.
-     */
-    public String getFechaFin() {
-        return fechaFin;
-    }
-
-    /**
-     * Establece la fecha de finalización de la campaña.
-     *
-     * @param fechaFin Fecha de finalización de la campaña.
-     */
-    public void setFechaFin(String fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    /**
      * Devuelve una representación en cadena del objeto CampañaDTO.
      *
      * @return Representación en cadena de la campaña.
@@ -153,9 +113,7 @@ public class CampañaDTO {
         return "CampañaDTO{" +
                 "idCampaña=" + idCampaña +
                 ", nombre='" + nombre + '\'' +
-                ", numeroAcciones=" + numeroAcciones +
-                ", fechaInicio='" + fechaInicio + '\'' +
-                ", fechaFin='" + fechaFin + '\'' +
+                ", numeroAcciones=" + numeroAcciones+
                 '}';
     }
 }

@@ -61,15 +61,6 @@ INSERT INTO horarios (id_empleado, hora_inicio, hora_fin, es_semanal, dia_semana
 VALUES 
 (6, TIME '07:00:00', TIME '15:00:00', TRUE, 5, NULL);
 
-
-INSERT INTO campañas (id_campaña, fase,nombre, numeroAcciones, fecha_inicio, fecha_fin)
-VALUES 
-    (1, 1,'Campaña de Primavera', 100, '2024-03-01', '2024-06-01'),
-    (2, 2,'Campaña de Verano', 200, '2024-06-15', '2024-09-15'),
-    (3, 1,'Campaña de Otoño', 150, '2024-09-20', '2024-12-20'),
-    (4, 3,'Campaña de Invierno', 120, '2024-12-25', '2025-03-01'),
-    (5, 2,'Campaña Especial', 80, '2024-11-01', '2024-11-30');
-
 INSERT INTO accionistas (id_accionista, nombre, dni, telefono, email)
 VALUES 
     (1, 'Juan Pérez', '12345678A', '600123456', 'juan.perez@example.com'),
@@ -77,16 +68,3 @@ VALUES
     (3, 'Carlos García', '45678901C', '600987654', 'carlos.garcia@example.com'),
     (4, 'Ana Fernández', '78901234D', '600456789', 'ana.fernandez@example.com'),
     (5, 'Luis Martínez', '23456789E', '600567890', 'luis.martinez@example.com');
-
-INSERT INTO acciones (id_accion, id_empleado, id_campaña, id_accionista)
-VALUES 
-    ('ACC001', 1, 1, 1),
-    ('ACC002', 2, 1, 2),
-    ('ACC003', 1, 2, 1),
-    ('ACC004', 3, 3, 3),
-    ('ACC005', 2, 3, 2),
-    ('ACC006', 1, 4, 4),
-    ('ACC007', 2, 4, 5),
-    ('ACC008', 3, 5, 4),
-    ('ACC009', 1, 5, 5);
-

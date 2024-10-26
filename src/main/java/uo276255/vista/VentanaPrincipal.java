@@ -2,9 +2,13 @@ package uo276255.vista;
 
 import javax.swing.*;
 import java.awt.*;
+
+import uo276255.controaldor.acciones.campaña.CampañaController;
+import uo276255.controaldor.empleado.EmpleadoController;
+import uo276255.modelo.acciones.campaña.CampañaModel;
 import uo276255.modelo.empleado.EmpleadoModel;
 import uo276255.util.Database;
-import uo276255.controaldor.empleado.EmpleadoController;
+import uo276255.vista.acciones.ManejoCampañasVista;
 import uo276255.vista.empleado.AgregarEmpleadoVista;
 import uo276255.vista.empleado.EliminarEmpleadoVista;
 import uo276255.vista.horario.AgregarHorarioVista;
@@ -21,7 +25,8 @@ public class VentanaPrincipal extends JFrame {
     private static final long serialVersionUID = 1L;
     private JButton btnAñadirEmpleado;
     private JButton btnModificarEliminarEmpleado;
-    private JButton btnAgregarHorario; // Nuevo botón para agregar horarios
+    private JButton btnAgregarHorario;
+    private JButton btnGestionCampañas; // Nuevo botón para gestión de campañas
 
     /**
      * Constructor que inicializa la interfaz gráfica principal.
@@ -29,7 +34,7 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal() {
         setTitle("Gestión de Empleados");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 800, 400); // Aumentamos el ancho y alto para acomodar el nuevo diseño
+        setBounds(100, 100, 800, 400);
         setResizable(false);
         setLocationRelativeTo(null);
 
@@ -45,26 +50,30 @@ public class VentanaPrincipal extends JFrame {
         add(panelTitulo, BorderLayout.NORTH);
 
         // Panel Botones
-        JPanel panelBotones = new JPanel(new GridLayout(2, 2, 20, 20)); // Cambiamos a GridLayout de 2 filas y 2 columnas
+        JPanel panelBotones = new JPanel(new GridLayout(2, 2, 20, 20)); // 2 filas y 2 columnas
         panelBotones.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         panelBotones.setBackground(new Color(245, 245, 245));
 
         btnAñadirEmpleado = new JButton("Añadir Empleado");
         btnModificarEliminarEmpleado = new JButton("Modificar/Borrar Empleado");
-        btnAgregarHorario = new JButton("Agregar Horario"); // Inicializamos el nuevo botón
+        btnAgregarHorario = new JButton("Agregar Horario");
+        btnGestionCampañas = new JButton("Gestión de campañas"); // Inicializamos el nuevo botón
 
         Font buttonFont = new Font("Arial", Font.PLAIN, 16);
         btnAñadirEmpleado.setFont(buttonFont);
         btnModificarEliminarEmpleado.setFont(buttonFont);
-        btnAgregarHorario.setFont(buttonFont); // Establecemos la fuente del nuevo botón
+        btnAgregarHorario.setFont(buttonFont);
+        btnGestionCampañas.setFont(buttonFont); // Establecemos la fuente del nuevo botón
 
         // Estilos de los botones
         btnAñadirEmpleado.setBackground(new Color(51, 153, 255));
         btnAñadirEmpleado.setForeground(Color.WHITE);
         btnModificarEliminarEmpleado.setBackground(new Color(255, 102, 102));
         btnModificarEliminarEmpleado.setForeground(Color.WHITE);
-        btnAgregarHorario.setBackground(new Color(102, 204, 102)); // Establecemos el color del nuevo botón
+        btnAgregarHorario.setBackground(new Color(102, 204, 102));
         btnAgregarHorario.setForeground(Color.WHITE);
+        btnGestionCampañas.setBackground(new Color(255, 153, 51)); // Color naranja
+        btnGestionCampañas.setForeground(Color.WHITE);
 
         // Efectos de hover para los botones
         btnAñadirEmpleado.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -94,9 +103,19 @@ public class VentanaPrincipal extends JFrame {
             }
         });
 
+        btnGestionCampañas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnGestionCampañas.setBackground(new Color(255, 133, 0));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnGestionCampañas.setBackground(new Color(255, 153, 51));
+            }
+        });
+
         panelBotones.add(btnAñadirEmpleado);
         panelBotones.add(btnModificarEliminarEmpleado);
-        panelBotones.add(btnAgregarHorario); // Añadimos el nuevo botón al panel
+        panelBotones.add(btnAgregarHorario);
+        panelBotones.add(btnGestionCampañas); // Añadimos el nuevo botón al panel
 
         add(panelBotones, BorderLayout.CENTER);
 
@@ -127,6 +146,13 @@ public class VentanaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 abrirFormularioAgregarHorario();
+            }
+        });
+
+        btnGestionCampañas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirVistaManejoCampañas();
             }
         });
     }
@@ -186,6 +212,25 @@ public class VentanaPrincipal extends JFrame {
         });
 
         agregarHorarioVista.setVisible(true);
+    }
+
+    /**
+     * Método para abrir la vista intermedia de manejo de campañas y deshabilitar el botón hasta que la ventana se cierre.
+     */
+    private void abrirVistaManejoCampañas() {
+        btnGestionCampañas.setEnabled(false);
+        Connection conn = Database.getInstance().getConnection();
+        CampañaModel modelo = new CampañaModel(conn);
+        ManejoCampañasVista vista = new ManejoCampañasVista();
+        CampañaController controlador = new CampañaController(vista, modelo);
+        vista.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                btnGestionCampañas.setEnabled(true);
+            }
+        });
+
+        vista.setVisible(true);
     }
 
     /**
