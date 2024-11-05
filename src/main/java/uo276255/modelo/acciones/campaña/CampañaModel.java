@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 /**
@@ -12,9 +13,11 @@ import java.util.UUID;
 public class CampañaModel {
     private static final String INSERT_CAMPAÑA =  "INSERT INTO campañas (id_campaña,nombre, numeroAcciones, fase,activa) VALUES (?,?,?,?,?)";
     private static final String GET_ACTIVAS =  "SELECT COUNT(*) FROM campañas WHERE activa = true";
+    private static final String GET_CAMPAÑA_ID =  "SELECT id_campaña FROM campañas WHERE activa = true";
     private static final String UPDATE_FASE = "UPDATE campañas SET fase = fase + 1 WHERE activa = true";
     private static final String GET_FASE = "SELECT fase FROM campañas WHERE activa = true";
     private static final String CLOSE_FASE = "UPDATE campañas SET activa = false WHERE activa = true";
+    private static final String GET_LAST = "SELECT MAX(CAST(id_campaña AS INTEGER)) AS max_id FROM campañas";
 
 
     private Connection conn;
@@ -44,6 +47,22 @@ public class CampañaModel {
             return false;
         }
     }
+    
+    /**
+     * Verifica si existe una campaña activa en la base de datos.
+     *
+     * @return true si existe una campaña activa, false en caso contrario.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    public int getCampañaActiva() throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(GET_CAMPAÑA_ID);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        }
+    }
 
     /**
      * Crea una nueva campaña en la base de datos.
@@ -54,7 +73,7 @@ public class CampañaModel {
      */
     public void crearCampaña(String nombre, int maximoAcciones) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_CAMPAÑA)) {
-        	stmt.setString(1, UUID.randomUUID().toString());
+        	stmt.setInt(1, obtenerNuevoIdCampaña());
             stmt.setString(2, nombre);
             stmt.setInt(3, maximoAcciones);
             stmt.setInt(4, 1); // Iniciamos la campaña en la fase 1
@@ -105,5 +124,25 @@ public class CampañaModel {
         try (PreparedStatement stmt = conn.prepareStatement(CLOSE_FASE)) {
             stmt.executeUpdate();
         }
+    }
+    
+    /**
+     * Obtiene el siguiente ID para una nueva campaña.
+     *
+     * @return El nuevo ID de campaña.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    private int obtenerNuevoIdCampaña() throws SQLException {
+        int nuevoId = 1; // Valor inicial por si no hay campañas previas
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(GET_LAST)) {
+            if (rs.next()) {
+                int maxId = rs.getInt("max_id");
+                if (!rs.wasNull()) {
+                    nuevoId = maxId + 1;
+                }
+            }
+        }
+        return nuevoId;
     }
 }

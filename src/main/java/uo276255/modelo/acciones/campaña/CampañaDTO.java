@@ -5,7 +5,7 @@ public class CampañaDTO {
     private String nombre;
     private int numeroAcciones;
     private int fase;
-
+    private boolean activa;
 
 	/**
      * Constructor vacío.
@@ -116,4 +116,12 @@ public class CampañaDTO {
                 ", numeroAcciones=" + numeroAcciones+
                 '}';
     }
+
+	public void setActiva(boolean activa) {
+		this.activa = activa;
+	}
+	
+	public boolean getActiva() {
+		return this.activa;
+	}
 }
