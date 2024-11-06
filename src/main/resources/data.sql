@@ -61,10 +61,22 @@ INSERT INTO horarios (id_empleado, hora_inicio, hora_fin, es_semanal, dia_semana
 VALUES 
 (6, TIME '07:00:00', TIME '15:00:00', TRUE, 5, NULL);
 
-INSERT INTO accionistas (id_accionista, nombre, dni, telefono, email)
-VALUES 
-    (1, 'Juan Pérez', '12345678A', '600123456', 'juan.perez@example.com'),
-    (2, 'María López', '87654321B', '600654321', 'maria.lopez@example.com'),
-    (3, 'Carlos García', '45678901C', '600987654', 'carlos.garcia@example.com'),
-    (4, 'Ana Fernández', '78901234D', '600456789', 'ana.fernandez@example.com'),
-    (5, 'Luis Martínez', '23456789E', '600567890', 'luis.martinez@example.com');
+INSERT INTO campañas (id_campaña, nombre, fase, numeroAcciones, activa) VALUES
+(1, 'Campaña Primavera', 3, 3, TRUE),
+(2, 'Campaña Verano', 2, 5, FALSE),
+(3, 'Campaña Otoño', 1, 4, FALSE);
+
+INSERT INTO accionistas (id_accionista, nombre, dni, telefono, email) VALUES
+(1, 'Ana López', '12345678A', '123456789', 'ana@example.com'),
+(2, 'Carlos Martínez', '23456789B', '234567890', 'carlos@example.com'),
+(3, 'Laura García', '34567890C', '345678901', 'laura@example.com'),
+(4, 'Juan Rodríguez', '45678901D', '456789012', 'juan@example.com'),
+(5, 'Marta Fernández', '56789012E', '567890123', 'marta@example.com');
+
+INSERT INTO acciones (id_accion, id_campaña, id_accionista, en_venta) VALUES
+(1, 1, 1, TRUE),
+(2, 1, 2, FALSE),
+(3, 1, 3, TRUE),
+(4, 1, 4, FALSE),
+(5, 1, 5, TRUE);
+

@@ -17,7 +17,7 @@ public class AccionistaVista extends JFrame {
     private JTextField txtEmail;
     private JButton btnCrearAccionista;
     private JButton btnLimpiarCampos;
-
+    private JLabel lblMensaje;
     /**
      * Constructor de la vista de accionistas.
      */
@@ -48,7 +48,11 @@ public class AccionistaVista extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         panelPrincipal.add(new JLabel("Nombre:"), gbc);
-
+        
+        lblMensaje = new JLabel("", SwingConstants.CENTER);
+        lblMensaje.setFont(new Font("Arial", Font.BOLD, 14));
+        lblMensaje.setForeground(Color.RED);
+        
         txtNombre = new JTextField(20);
         gbc.gridx = 1;
         panelPrincipal.add(txtNombre, gbc);
@@ -162,5 +166,14 @@ public class AccionistaVista extends JFrame {
      */
     public void agregarListenerLimpiarCampos(ActionListener listener) {
         btnLimpiarCampos.addActionListener(listener);
+    }
+    
+    /**
+     * Muestra un mensaje al usuario.
+     *
+     * @param mensaje El mensaje a mostrar.
+     */
+    public void mostrarMensaje(String mensaje) {
+        lblMensaje.setText(mensaje);
     }
 }

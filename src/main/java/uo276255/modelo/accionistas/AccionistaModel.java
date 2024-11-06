@@ -3,12 +3,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import uo276255.modelo.acciones.accion.AccionDTO;
+
 /**
  * Clase que representa el modelo para gestionar accionistas.
  */
 public class AccionistaModel {
 
     private Connection conexion;
+    private static final String GET_LAST = "SELECT MAX(CAST(id_accionista AS INTEGER)) AS max_id FROM accionistas";
 
     /**
      * Constructor que recibe una conexión a la base de datos.
@@ -47,28 +50,21 @@ public class AccionistaModel {
      * @return El accionista creado con su ID asignado.
      * @throws SQLException Si ocurre un error al acceder a la base de datos.
      */
-    public AccionistaDTO crearAccionista(AccionistaDTO accionista) throws SQLException {
-        String sql = "INSERT INTO accionistas (nombre, dni, telefono, email) VALUES (?, ?, ?, ?)";
+    public void crearAccionista(AccionistaDTO accionista) throws SQLException {
+        String sql = "INSERT INTO accionistas (id_accionista,nombre, dni, telefono, email) VALUES (?,?, ?, ?, ?)";
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, accionista.getNombre());
-            stmt.setString(2, accionista.getDni());
-            stmt.setString(3, accionista.getTelefono());
-            stmt.setString(4, accionista.getEmail());
+        	stmt.setInt(1, obtenerNuevoId());
+            stmt.setString(2, accionista.getNombre());
+            stmt.setString(3, accionista.getDni());
+            stmt.setString(4, accionista.getTelefono());
+            stmt.setString(5, accionista.getEmail());
 
             int filasAfectadas = stmt.executeUpdate();
             if (filasAfectadas == 0) {
                 throw new SQLException("No se pudo crear el accionista.");
             }
 
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    accionista.setIdAccionista(generatedKeys.getInt(1));
-                } else {
-                    throw new SQLException("No se pudo obtener el ID del accionista creado.");
-                }
-            }
         }
-        return accionista;
     }
 
     /**
@@ -186,4 +182,87 @@ public class AccionistaModel {
         	conexion.setAutoCommit(true);
         }
     }
+    
+    /**
+     * Obtiene el siguiente ID para una nueva campaña.
+     *
+     * @return El nuevo ID de campaña.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    private int obtenerNuevoId() throws SQLException {
+        int nuevoId = 1; // Valor inicial por si no hay campañas previas
+        try (Statement stmt = conexion.createStatement();
+             ResultSet rs = stmt.executeQuery(GET_LAST)) {
+            if (rs.next()) {
+                int maxId = rs.getInt("max_id");
+                if (!rs.wasNull()) {
+                    nuevoId = maxId + 1;
+                }
+            }
+        }
+        return nuevoId;
+    }
+
+    public AccionistaDTO obtenerUltimoAccionista() throws SQLException {
+        String sql = "SELECT * FROM accionistas ORDER BY id_accionista DESC LIMIT 1";
+        try (Statement stmt = conexion.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                AccionistaDTO accionista = new AccionistaDTO();
+                accionista.setIdAccionista(rs.getInt("id_accionista"));
+                accionista.setNombre(rs.getString("nombre"));
+                accionista.setDni(rs.getString("dni"));
+                accionista.setTelefono(rs.getString("telefono"));
+                accionista.setEmail(rs.getString("email"));
+                return accionista;
+            } else {
+                return null; 
+            }
+        }
+    }
+    
+    
+    /**
+     * Obtiene las acciones no en venta de un accionista.
+     *
+     * @param idAccionista El ID del accionista.
+     * @return Una lista de AccionDTO.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    public List<AccionDTO> obtenerAccionesNoEnVentaPorAccionista(int idAccionista) throws SQLException {
+        String sql = "SELECT * FROM acciones WHERE id_accionista = ? AND en_venta = FALSE";
+        List<AccionDTO> acciones = new ArrayList<>();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, idAccionista);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    AccionDTO accion = new AccionDTO();
+                    accion.setIdAccion(rs.getString("id_accion"));
+                    accion.setIdCampaña(rs.getInt("id_campaña"));
+                    accion.setIdAccionista(rs.getInt("id_accionista"));
+                    accion.setEnVenta(rs.getBoolean("en_venta"));
+                    acciones.add(accion);
+                }
+            }
+        }
+        return acciones;
+    }
+
+    /**
+     * Marca las acciones especificadas como en venta.
+     *
+     * @param idsAcciones Un arreglo de IDs de acciones.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    public void marcarAccionesEnVenta(String[] idsAcciones) throws SQLException {
+        String sql = "UPDATE acciones SET en_venta = TRUE WHERE id_accion = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            for (String idAccion : idsAcciones) {
+                stmt.setString(1, idAccion);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        }
+    }
+
 }

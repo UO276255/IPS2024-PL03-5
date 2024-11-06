@@ -3,16 +3,17 @@ package uo276255.vista;
 import javax.swing.*;
 import java.awt.*;
 
+import uo276255.controaldor.acciones.AccionesController;
 import uo276255.controaldor.acciones.campaña.CampañaController;
-import uo276255.controaldor.acciones.campaña.CompraAccionesController;
 import uo276255.controaldor.empleado.EmpleadoController;
-import uo276255.modelo.acciones.accion.CompraAccionesModel;
-import uo276255.modelo.acciones.campaña.CampañaModel;
+import uo276255.modelo.acciones.accion.AccionesModel;
 import uo276255.modelo.accionistas.AccionistaModel;
+import uo276255.modelo.acciones.campaña.CampañaModel;
 import uo276255.modelo.empleado.EmpleadoModel;
 import uo276255.util.Database;
-import uo276255.vista.acciones.CompraAccionesVista;
+import uo276255.vista.acciones.AccionesDisponiblesVista;
 import uo276255.vista.acciones.ManejoCampañasVista;
+import uo276255.vista.accionistas.VenderAccionesVista;
 import uo276255.vista.empleado.AgregarEmpleadoVista;
 import uo276255.vista.empleado.EliminarEmpleadoVista;
 import uo276255.vista.horario.AgregarHorarioVista;
@@ -33,6 +34,7 @@ public class VentanaPrincipal extends JFrame {
     private JButton btnAgregarHorario;
     private JButton btnGestionCampañas;
     private JButton btnComprarAcciones;
+    private JButton btnGestionarAccionesAccionista; // Nuevo botón
     private Connection conn;
 
     /**
@@ -69,6 +71,7 @@ public class VentanaPrincipal extends JFrame {
         btnAgregarHorario = new JButton("Agregar Horario");
         btnGestionCampañas = new JButton("Gestión de campañas");
         btnComprarAcciones = new JButton("Comprar Acciones");
+        btnGestionarAccionesAccionista = new JButton("Gestionar Mis Acciones"); // Nuevo botón
 
         Font buttonFont = new Font("Arial", Font.PLAIN, 16);
         btnAñadirEmpleado.setFont(buttonFont);
@@ -76,6 +79,7 @@ public class VentanaPrincipal extends JFrame {
         btnAgregarHorario.setFont(buttonFont);
         btnGestionCampañas.setFont(buttonFont);
         btnComprarAcciones.setFont(buttonFont);
+        btnGestionarAccionesAccionista.setFont(buttonFont); // Aplicar fuente al nuevo botón
 
         // Estilos de los botones
         btnAñadirEmpleado.setBackground(new Color(51, 153, 255));
@@ -88,6 +92,8 @@ public class VentanaPrincipal extends JFrame {
         btnGestionCampañas.setForeground(Color.WHITE);
         btnComprarAcciones.setBackground(new Color(153, 102, 255)); // Color morado
         btnComprarAcciones.setForeground(Color.WHITE);
+        btnGestionarAccionesAccionista.setBackground(new Color(255, 204, 0)); // Color amarillo
+        btnGestionarAccionesAccionista.setForeground(Color.WHITE);
 
         // Efectos de hover para los botones
         agregarEfectoHover(btnAñadirEmpleado, new Color(0, 123, 255), new Color(51, 153, 255));
@@ -95,6 +101,7 @@ public class VentanaPrincipal extends JFrame {
         agregarEfectoHover(btnAgregarHorario, new Color(76, 175, 80), new Color(102, 204, 102));
         agregarEfectoHover(btnGestionCampañas, new Color(255, 133, 0), new Color(255, 153, 51));
         agregarEfectoHover(btnComprarAcciones, new Color(142, 68, 173), new Color(153, 102, 255));
+        agregarEfectoHover(btnGestionarAccionesAccionista, new Color(255, 179, 0), new Color(255, 204, 0));
 
         // Añadimos los botones al panel
         panelBotones.add(btnAñadirEmpleado);
@@ -102,6 +109,7 @@ public class VentanaPrincipal extends JFrame {
         panelBotones.add(btnAgregarHorario);
         panelBotones.add(btnGestionCampañas);
         panelBotones.add(btnComprarAcciones);
+        panelBotones.add(btnGestionarAccionesAccionista); // Añadir el nuevo botón al panel
 
         add(panelBotones, BorderLayout.CENTER);
 
@@ -145,7 +153,14 @@ public class VentanaPrincipal extends JFrame {
         btnComprarAcciones.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                abrirFormularioComprarAcciones();
+                abrirVentanaAccionesDisponibles();
+            }
+        });
+
+        btnGestionarAccionesAccionista.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirVentanaGestionAccionesAccionista();
             }
         });
 
@@ -178,7 +193,7 @@ public class VentanaPrincipal extends JFrame {
      */
     private void verificarDisponibilidadCompraAcciones() {
         try {
-            CompraAccionesModel compraAccionesModel = new CompraAccionesModel(conn);
+            AccionesModel compraAccionesModel = new AccionesModel(conn);
             boolean campañaActiva = compraAccionesModel.obtenerCampañaActiva() != null;
             boolean hayAccionesDisponibles = compraAccionesModel.hayAccionesEnVenta();
 
@@ -258,7 +273,7 @@ public class VentanaPrincipal extends JFrame {
         CampañaModel modelo = new CampañaModel(conn);
         ManejoCampañasVista vista = new ManejoCampañasVista();
         AccionistaModel ac = new AccionistaModel(conn);
-        CampañaController controlador = new CampañaController(vista, modelo,ac);
+        CampañaController controlador = new CampañaController(vista, modelo, ac);
         vista.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent windowEvent) {
@@ -276,19 +291,56 @@ public class VentanaPrincipal extends JFrame {
      */
     private void abrirFormularioComprarAcciones() {
         btnComprarAcciones.setEnabled(false);
-        CompraAccionesVista compraAccionesVista = new CompraAccionesVista();
-        CompraAccionesModel compraAccionesModel = new CompraAccionesModel(conn);
-        CompraAccionesController compraAccionesController = new CompraAccionesController(compraAccionesVista, compraAccionesModel);
+        AccionesDisponiblesVista compraAccionesVista = new AccionesDisponiblesVista();
+        AccionesModel compraAccionesModel = new AccionesModel(conn);
+        AccionesController compraAccionesController = new AccionesController(compraAccionesVista, compraAccionesModel);
         compraAccionesVista.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent windowEvent) {
                 btnComprarAcciones.setEnabled(true);
-                // Actualizar disponibilidad del botón "Comprar Acciones" al cerrar la ventana
                 verificarDisponibilidadCompraAcciones();
             }
         });
 
         compraAccionesVista.setVisible(true);
+    }
+
+    /**
+     * Método para abrir la ventana de acciones disponibles.
+     */
+    private void abrirVentanaAccionesDisponibles() {
+        btnComprarAcciones.setEnabled(false);
+        AccionesDisponiblesVista accionesVista = new AccionesDisponiblesVista();
+        AccionesModel compraAccionesModel = new AccionesModel(conn);
+        AccionesController accionesController = new AccionesController(accionesVista, compraAccionesModel);
+        accionesVista.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                btnComprarAcciones.setEnabled(true);
+                verificarDisponibilidadCompraAcciones();
+            }
+        });
+
+        accionesVista.setVisible(true);
+    }
+
+    /**
+     * Método para abrir la ventana donde el accionista puede gestionar sus acciones.
+     */
+    private void abrirVentanaGestionAccionesAccionista() {
+        btnGestionarAccionesAccionista.setEnabled(false);
+        VenderAccionesVista accionesVista = new VenderAccionesVista();
+        AccionistaModel accionistaModel = new AccionistaModel(conn);
+        AccionesModel accionesModel = new AccionesModel(conn);
+        AccionesController accionesController = new AccionesController(accionesVista, accionistaModel, accionesModel);
+        accionesVista.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                btnGestionarAccionesAccionista.setEnabled(true);
+            }
+        });
+
+        accionesVista.setVisible(true);
     }
 
     /**

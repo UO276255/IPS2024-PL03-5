@@ -3,20 +3,24 @@ import uo276255.modelo.acciones.campaña.CampañaDTO;
 import uo276255.modelo.accionistas.AccionistaDTO;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase que representa el modelo para la compra de acciones.
  */
-public class CompraAccionesModel {
+public class AccionesModel {
 
     private Connection conexion;
+    private static final String GET_LAST = "SELECT MAX(CAST(id_accion AS INTEGER)) AS max_id FROM acciones";
+
 
     /**
      * Constructor que recibe una conexión a la base de datos.
      *
      * @param conexion La conexión a la base de datos.
      */
-    public CompraAccionesModel(Connection conexion) {
+    public AccionesModel(Connection conexion) {
         this.conexion = conexion;
     }
 
@@ -45,10 +49,10 @@ public class CompraAccionesModel {
      * @return Un objeto Accionista si se encuentra, de lo contrario null.
      * @throws SQLException Si ocurre un error al acceder a la base de datos.
      */
-    public AccionistaDTO obtenerAccionistaPorDNI(String dni) throws SQLException {
-        String sql = "SELECT * FROM accionistas WHERE dni = ?";
+    public AccionistaDTO obtenerAccionistaPorDNI(int id) throws SQLException {
+        String sql = "SELECT * FROM accionistas WHERE id_accionista = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, dni);
+            stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -99,7 +103,7 @@ public class CompraAccionesModel {
      * @throws SQLException Si ocurre un error al acceder a la base de datos.
      */
     public int contarAccionesAccionistaEnCampaña(int idAccionista, int idCampaña) throws SQLException {
-        String sql = "SELECT COUNT(*) AS total FROM acciones WHERE id_accionista = ? AND id_campaña = ?";
+        String sql = "SELECT max_acciones AS total FROM accionista_campaña WHERE id_accionista = ? AND id_campaña = ?";
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, idAccionista);
             stmt.setInt(2, idCampaña);
@@ -122,7 +126,7 @@ public class CompraAccionesModel {
      * @throws SQLException Si ocurre un error al acceder a la base de datos.
      */
     public void comprarAcciones(AccionistaDTO accionista, CampañaDTO campaña, int cantidadAcciones) throws SQLException {
-        String sqlInsertAccion = "INSERT INTO acciones (id_accion, id_empleado, id_campaña, id_accionista, en_venta) VALUES (?, NULL, ?, ?, FALSE)";
+        String sqlInsertAccion = "INSERT INTO acciones (id_accion, id_campaña, id_accionista, en_venta) VALUES (?, ?, ?, FALSE)";
         String sqlActualizarNumeroAcciones = "UPDATE campañas SET numeroAcciones = numeroAcciones - ? WHERE id_campaña = ?";
 
         try (PreparedStatement stmtInsertAccion = conexion.prepareStatement(sqlInsertAccion);
@@ -130,21 +134,20 @@ public class CompraAccionesModel {
 
             conexion.setAutoCommit(false);
 
-            // Verificar si hay suficientes acciones disponibles
             if (campaña.getNumeroAcciones() < cantidadAcciones) {
                 throw new SQLException("No hay suficientes acciones disponibles en la campaña.");
             }
 
             // Insertar las acciones
             for (int i = 0; i < cantidadAcciones; i++) {
-                stmtInsertAccion.setString(1, generarIdAccion());
+                stmtInsertAccion.setInt(1, generarIdAccion());
                 stmtInsertAccion.setInt(2, campaña.getIdCampaña());
                 stmtInsertAccion.setInt(3, accionista.getIdAccionista());
                 stmtInsertAccion.executeUpdate();
             }
 
             // Actualizar el número de acciones disponibles en la campaña
-            stmtActualizarNumeroAcciones.setInt(1, cantidadAcciones);
+            stmtActualizarNumeroAcciones.setInt(1,cantidadAcciones);
             stmtActualizarNumeroAcciones.setInt(2, campaña.getIdCampaña());
             stmtActualizarNumeroAcciones.executeUpdate();
 
@@ -156,6 +159,7 @@ public class CompraAccionesModel {
             conexion.setAutoCommit(true);
         }
     }
+ 
 
     /**
      * Mapea un ResultSet a un objeto Campaña.
@@ -212,12 +216,86 @@ public class CompraAccionesModel {
     }
     
     /**
-     * Genera un ID único para una acción.
+     * Genera un ID único para una acción basado en el último ID existente.
      *
-     * @return Un String representando el ID de la acción.
+     * @return Un String representando el nuevo ID de la acción.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
      */
-    private String generarIdAccion() {
-        // Puedes implementar una lógica para generar IDs únicos para las acciones
-        return "ACCION_" + System.currentTimeMillis() + Math.random();
+    private int generarIdAccion() throws SQLException {
+        int nuevoId = 1; // Valor inicial por si no hay campañas previas
+        try (Statement stmt = conexion.createStatement();
+             ResultSet rs = stmt.executeQuery(GET_LAST)) {
+            if (rs.next()) {
+                int maxId = rs.getInt("max_id");
+                if (!rs.wasNull()) {
+                    nuevoId = maxId + 1;
+                }
+            }
+        }
+        return nuevoId;
     }
+       
+   
+    /**
+     * Obtiene la lista de acciones que están en venta.
+     *
+     * @return Una lista de objetos AccionDTO que están en venta.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    public List<AccionDTO> obtenerAccionesEnVenta() throws SQLException {
+        String sql = "SELECT * FROM acciones WHERE en_venta = TRUE";
+        List<AccionDTO> acciones = new ArrayList<>();
+        try (Statement stmt = conexion.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                AccionDTO accion = new AccionDTO();
+                accion.setIdAccion(rs.getString("id_accion"));
+                accion.setIdCampaña(rs.getInt("id_campaña"));
+                accion.setIdAccionista(rs.getInt("id_accionista"));
+                accion.setEnVenta(rs.getBoolean("en_venta"));
+                acciones.add(accion);
+            }
+        }
+        return acciones;
+    }
+
+    /**
+     * Realiza la compra de una acción en venta, asignándola a un empleado y marcándola como no en venta.
+     *
+     * @param idAccion   El ID de la acción a comprar.
+     * @param idEmpleado El ID del empleado que compra la acción.
+     * @throws SQLException Si ocurre un error al acceder a la base de datos.
+     */
+    public void comprarAccion(int idAccion, int idEmpleado) throws SQLException {
+        String sqlActualizarAccion = "UPDATE acciones SET id_accionista = ?, en_venta = FALSE WHERE id_accion = ? AND en_venta = TRUE";
+        try (PreparedStatement stmt = conexion.prepareStatement(sqlActualizarAccion)) {
+            stmt.setInt(1, idEmpleado);
+            stmt.setInt(2, idAccion);
+
+            int filasActualizadas = stmt.executeUpdate();
+            if (filasActualizadas == 0) {
+                throw new SQLException("No se pudo comprar la acción. Es posible que ya haya sido vendida.");
+            }
+        }
+    }
+    
+    
+	public void actualizarMaximo(int idAccionista, int idCampaña, int cantidadAcciones) {
+        String sqlActualizarAccion = "UPDATE accionista_campaña SET max_acciones = max_acciones - ? WHERE id_accionista = ? AND id_campaña = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sqlActualizarAccion)) {
+            stmt.setInt(1, cantidadAcciones);
+            stmt.setInt(2, idAccionista);
+            stmt.setInt(3, idCampaña);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	public Connection getConnect() {
+		return conexion;
+	}
+	
 }

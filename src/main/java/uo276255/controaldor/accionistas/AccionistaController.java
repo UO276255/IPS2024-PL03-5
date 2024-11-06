@@ -3,52 +3,62 @@ package uo276255.controaldor.accionistas;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
+import uo276255.modelo.acciones.accion.AccionistaCreadoListener;
+import uo276255.modelo.acciones.accion.AccionesModel;
+import uo276255.modelo.acciones.campaña.CampañaDTO;
 import uo276255.modelo.accionistas.AccionistaDTO;
 import uo276255.modelo.accionistas.AccionistaModel;
+import uo276255.vista.acciones.AccionesDisponiblesVista;
 import uo276255.vista.accionistas.AccionistaVista;
 
 /**
- * Clase que representa el controlador para gestionar accionistas.
+ * Controlador para la creación de accionistas.
  */
 public class AccionistaController {
 
     private AccionistaVista vista;
+    private AccionesDisponiblesVista vistaCompra;
     private AccionistaModel modelo;
+    private AccionesModel modeloAcciones;
+    private AccionistaCreadoListener listener;
 
-    /**
-     * Constructor del controlador de accionistas.
-     *
-     * @param vista  La vista asociada al controlador.
-     * @param modelo El modelo que maneja los datos.
+	public AccionistaController(AccionistaVista crearAccionistaVista, AccionistaModel accionistaModel,
+			AccionesModel modeloAcciones,AccionesDisponiblesVista vistaCompra, CampañaDTO campaña, int cantidadAcciones) {
+        this.vista = crearAccionistaVista;
+        this.modelo = accionistaModel;
+        this.vistaCompra = vistaCompra;
+        this.modeloAcciones = modeloAcciones;
+        inicializarControlador(campaña,cantidadAcciones);	
+      }
+
+
+	/**
+     * Inicializa el controlador y los eventos de la vista.
      */
-    public AccionistaController(AccionistaVista vista, AccionistaModel modelo) {
-        this.vista = vista;
-        this.modelo = modelo;
+    private void inicializarControlador(CampañaDTO campaña, int cantidadAcciones) {
+        vista.agregarListenerCrearAccionista(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                crearAccionista(campaña,cantidadAcciones);
+               }
+        });
     }
-    /**
-     * Maneja la creación de un nuevo accionista.
+	/**
+     * Crea un nuevo accionista y notifica al listener.
      */
-    private void crearAccionista() {
+    private void crearAccionista(CampañaDTO campaña, int cantidadAcciones) {
+        AccionistaDTO nuevoAccionista = vista.obtenerDatosAccionista();
         try {
-        	AccionistaDTO nuevoAccionista = vista.obtenerDatosAccionista();
-            if (nuevoAccionista != null) {
-                // Verificar si el DNI ya existe
-            	AccionistaDTO existente = modelo.obtenerAccionistaPorDNI(nuevoAccionista.getDni());
-                if (existente != null) {
-                    vista.mostrarMensajeError("Ya existe un accionista con el DNI proporcionado.");
-                    return;
+            modelo.crearAccionista(nuevoAccionista);
+            vista.dispose();
+            AccionistaDTO dto = modelo.obtenerUltimoAccionista();
+            modeloAcciones.comprarAcciones(dto, campaña, cantidadAcciones);
+            vistaCompra.mostrarMensajeExito("Compra realizada exitosamente en fase 3.");
+           } catch (SQLException e) {
+                    vistaCompra.mostrarMensajeError("Error al comprar acciones: " + e.getMessage());
                 }
-
-                modelo.crearAccionista(nuevoAccionista);
-                vista.mostrarMensajeExito("Accionista creado exitosamente.");
-            }
-        } catch (SQLException e) {
-            vista.mostrarMensajeError("Error al crear el accionista: " + e.getMessage());
-        }
+        	}
     }
 
-}

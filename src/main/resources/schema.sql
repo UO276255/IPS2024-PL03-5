@@ -42,7 +42,6 @@ CREATE TABLE accionistas (
 
 CREATE TABLE acciones (
     id_accion INTEGER PRIMARY KEY,
-    id_empleado INTEGER NOT NULL,
     id_campaña INTEGER NOT NULL,
     id_accionista INTEGER NOT NULL,
     en_venta BOOLEAN,
