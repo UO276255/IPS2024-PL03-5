@@ -1,6 +1,7 @@
 package uo276255.controaldor.acciones.campaña;
 
 import uo276255.modelo.acciones.campaña.CampañaModel;
+import uo276255.modelo.accionistas.AccionistaModel;
 import uo276255.vista.acciones.CrearCampañaVista;
 import uo276255.vista.acciones.ManejoCampañasVista;
 
@@ -18,19 +19,20 @@ public class CampañaController {
     private ManejoCampañasVista manejoVista;
     private CrearCampañaVista crearVista;
     private CampañaModel modelo;
-
+    private AccionistaModel modeloAcc;
     /**
      * Constructor para el controlador de campañas.
      *
      * @param manejoVista La vista de manejo de campañas.
      * @param modelo      El modelo de campañas.
      */
-    public CampañaController(ManejoCampañasVista manejoVista, CampañaModel modelo) {
+    public CampañaController(ManejoCampañasVista manejoVista, CampañaModel modelo,AccionistaModel modeloAc) {
         this.manejoVista = manejoVista;
         this.modelo = modelo;
-
+        this.modeloAcc = modeloAc;
         inicializarControlador();
     }
+
 
     /**
      * Inicializa los listeners y el estado inicial de la vista.
@@ -82,10 +84,11 @@ public class CampañaController {
                         } else {
                             try {
                                 modelo.crearCampaña(nombre, maxAcciones);
+                                modeloAcc.actualizarAcciones(modelo.getCampañaActiva());
                                 crearVista.mostrarMensajeExito("Campaña creada exitosamente.");
                                 manejoVista.setCampañaExistente(true);
                             } catch (SQLException ex) {
-                                crearVista.mostrarMensajeError("Error al crear la campaña.");
+                                crearVista.mostrarMensajeError(ex.getMessage());
                             }
                         }
                     }

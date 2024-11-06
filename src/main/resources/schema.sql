@@ -25,7 +25,7 @@ CREATE TABLE horarios (
 );
 
 CREATE TABLE campañas (
-    id_campaña VARCHAR(50) PRIMARY KEY,
+    id_campaña INTEGER PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     fase integer NOT NULL,
     numeroAcciones INTEGER NOT NULL,
@@ -38,13 +38,11 @@ CREATE TABLE accionistas (
     dni VARCHAR(15) NOT NULL UNIQUE,
     telefono VARCHAR(20),
     email VARCHAR(100),
-    maximoAcciones integer
 );
 
 CREATE TABLE acciones (
-    id_accion VARCHAR(50) PRIMARY KEY,
-    id_empleado INTEGER NOT NULL,
-    id_campaña VARCHAR(50) NOT NULL,
+    id_accion INTEGER PRIMARY KEY,
+    id_campaña INTEGER NOT NULL,
     id_accionista INTEGER NOT NULL,
     en_venta BOOLEAN,
     FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
@@ -53,10 +51,9 @@ CREATE TABLE acciones (
 
 CREATE TABLE accionista_campaña (
     id_accionista INTEGER,
-    id_campaña VARCHAR(50),
+    id_campaña INTEGER,
     max_acciones INTEGER NOT NULL,
     PRIMARY KEY (id_accionista, id_campaña),
     FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
     FOREIGN KEY (id_campaña) REFERENCES campañas(id_campaña),
-    CHECK (max_acciones > 0)
 );
