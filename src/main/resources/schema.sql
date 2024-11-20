@@ -57,3 +57,37 @@ CREATE TABLE accionista_campaña (
     FOREIGN KEY (id_accionista) REFERENCES accionistas(id_accionista),
     FOREIGN KEY (id_campaña) REFERENCES campañas(id_campaña),
 );
+
+CREATE TABLE Producto (
+    id_producto INT PRIMARY KEY IDENTITY,
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(255),
+    precio DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE Vendedor (
+    id_vendedor INT PRIMARY KEY IDENTITY,
+    nombre VARCHAR(100) NOT NULL,
+    dni VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20)
+);
+
+CREATE TABLE Compra (
+    id_compra INT PRIMARY KEY IDENTITY,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_vendedor INT NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_vendedor) REFERENCES Vendedor(id_vendedor)
+);
+
+CREATE TABLE Compra_Detalle (
+    id_detalle INT PRIMARY KEY IDENTITY,
+    id_compra INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+	precio_total DECIMAL(10, 2) GENERATED ALWAYS AS (cantidad * precio_unitario),
+    FOREIGN KEY (id_compra) REFERENCES Compra(id_compra),
+    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+);
+

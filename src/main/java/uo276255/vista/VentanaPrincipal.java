@@ -5,15 +5,19 @@ import java.awt.*;
 
 import uo276255.controaldor.acciones.AccionesController;
 import uo276255.controaldor.acciones.campaña.CampañaController;
+import uo276255.controaldor.compra.CompraController;
 import uo276255.controaldor.empleado.EmpleadoController;
 import uo276255.modelo.acciones.accion.AccionesModel;
 import uo276255.modelo.accionistas.AccionistaModel;
+import uo276255.modelo.compra.CompraModel;
 import uo276255.modelo.acciones.campaña.CampañaModel;
 import uo276255.modelo.empleado.EmpleadoModel;
+import uo276255.modelo.productos.ProductoModel;
 import uo276255.util.Database;
 import uo276255.vista.acciones.AccionesDisponiblesVista;
 import uo276255.vista.acciones.ManejoCampañasVista;
 import uo276255.vista.accionistas.VenderAccionesVista;
+import uo276255.vista.compra.ComprarProductosView;
 import uo276255.vista.empleado.AgregarEmpleadoVista;
 import uo276255.vista.empleado.EliminarEmpleadoVista;
 import uo276255.vista.horario.AgregarHorarioVista;
@@ -34,7 +38,9 @@ public class VentanaPrincipal extends JFrame {
     private JButton btnAgregarHorario;
     private JButton btnGestionCampañas;
     private JButton btnComprarAcciones;
-    private JButton btnGestionarAccionesAccionista; // Nuevo botón
+    private JButton btnGestionarAccionesAccionista;
+    private JButton btnComprar; 
+
     private Connection conn;
 
     /**
@@ -72,6 +78,7 @@ public class VentanaPrincipal extends JFrame {
         btnGestionCampañas = new JButton("Gestión de campañas");
         btnComprarAcciones = new JButton("Comprar Acciones");
         btnGestionarAccionesAccionista = new JButton("Gestionar Mis Acciones"); // Nuevo botón
+        btnComprar = new JButton("Comprar"); // Inicialización del nuevo botón
 
         Font buttonFont = new Font("Arial", Font.PLAIN, 16);
         btnAñadirEmpleado.setFont(buttonFont);
@@ -80,6 +87,7 @@ public class VentanaPrincipal extends JFrame {
         btnGestionCampañas.setFont(buttonFont);
         btnComprarAcciones.setFont(buttonFont);
         btnGestionarAccionesAccionista.setFont(buttonFont); // Aplicar fuente al nuevo botón
+        btnComprar.setFont(buttonFont); 
 
         // Estilos de los botones
         btnAñadirEmpleado.setBackground(new Color(51, 153, 255));
@@ -94,7 +102,8 @@ public class VentanaPrincipal extends JFrame {
         btnComprarAcciones.setForeground(Color.WHITE);
         btnGestionarAccionesAccionista.setBackground(new Color(255, 204, 0)); // Color amarillo
         btnGestionarAccionesAccionista.setForeground(Color.WHITE);
-
+        btnComprar.setBackground(new Color(0, 204, 204)); // Color cian para el nuevo botón
+        btnComprar.setForeground(Color.WHITE);
         // Efectos de hover para los botones
         agregarEfectoHover(btnAñadirEmpleado, new Color(0, 123, 255), new Color(51, 153, 255));
         agregarEfectoHover(btnModificarEliminarEmpleado, new Color(255, 77, 77), new Color(255, 102, 102));
@@ -102,6 +111,7 @@ public class VentanaPrincipal extends JFrame {
         agregarEfectoHover(btnGestionCampañas, new Color(255, 133, 0), new Color(255, 153, 51));
         agregarEfectoHover(btnComprarAcciones, new Color(142, 68, 173), new Color(153, 102, 255));
         agregarEfectoHover(btnGestionarAccionesAccionista, new Color(255, 179, 0), new Color(255, 204, 0));
+        agregarEfectoHover(btnComprar, new Color(0, 153, 153), new Color(0, 204, 204)); // Efecto hover para el nuevo botón
 
         // Añadimos los botones al panel
         panelBotones.add(btnAñadirEmpleado);
@@ -109,7 +119,8 @@ public class VentanaPrincipal extends JFrame {
         panelBotones.add(btnAgregarHorario);
         panelBotones.add(btnGestionCampañas);
         panelBotones.add(btnComprarAcciones);
-        panelBotones.add(btnGestionarAccionesAccionista); // Añadir el nuevo botón al panel
+        panelBotones.add(btnGestionarAccionesAccionista); 
+        panelBotones.add(btnComprar);
 
         add(panelBotones, BorderLayout.CENTER);
 
@@ -161,6 +172,13 @@ public class VentanaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 abrirVentanaGestionAccionesAccionista();
+            }
+        });
+        
+        btnComprar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirVentanaComprar(); // Método para abrir la ventana de compra
             }
         });
 
@@ -342,7 +360,27 @@ public class VentanaPrincipal extends JFrame {
 
         accionesVista.setVisible(true);
     }
+    
+    /**
+     * Método para abrir la ventana de compra y deshabilitar el botón hasta que la ventana se cierre.
+     */
+    private void abrirVentanaComprar() {
+        btnComprar.setEnabled(false);
+        // Aquí debes crear la vista y el controlador de la ventana de compra
+        // Por ejemplo:
+        ComprarProductosView tiendaVista = new ComprarProductosView();
+        ProductoModel productoDAO = new ProductoModel(conn);
+        CompraModel compraDAO = new CompraModel(conn);
+        CompraController tiendaController = new CompraController(tiendaVista, productoDAO,compraDAO);
+        tiendaVista.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                btnComprar.setEnabled(true);
+            }
+        });
 
+        tiendaVista.setVisible(true);
+    }
     /**
      * Método principal para ejecutar la aplicación.
      *

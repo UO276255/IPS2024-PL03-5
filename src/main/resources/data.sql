@@ -80,3 +80,23 @@ INSERT INTO acciones (id_accion, id_campaña, id_accionista, en_venta) VALUES
 (4, 1, 4, FALSE),
 (5, 1, 5, TRUE);
 
+INSERT INTO Vendedor (nombre, dni, telefono) VALUES ('Juan Pérez', '12345678A', '555-1234');
+INSERT INTO Producto (nombre, tipo, precio) VALUES
+('Camiseta Oficial', 'Ropa', 19.99),
+('Gorra Personalizada', 'Accesorios', 12.50),
+('Taza con Logo', 'Hogar', 8.75),
+('Póster Edición Limitada', 'Decoración', 15.00),
+('Llavero Metálico', 'Accesorios', 4.50),
+('Sudadera con Capucha', 'Ropa', 29.99),
+('Mochila Deportiva', 'Accesorios', 24.99),
+('Bolígrafo Corporativo', 'Papelería', 2.00),
+('Calendario Anual', 'Papelería', 6.00),
+('Pegatina Vinilo', 'Accesorios', 1.50),
+('Botella Reutilizable', 'Hogar', 10.00),
+('Agenda de Notas', 'Papelería', 7.50),
+('Polo Bordado', 'Ropa', 22.00),
+('Fundas para Móvil', 'Tecnología', 9.99),
+('Auriculares Inalámbricos', 'Tecnología', 35.00);
+
+
+
