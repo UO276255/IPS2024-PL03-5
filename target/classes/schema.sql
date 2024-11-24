@@ -91,3 +91,12 @@ CREATE TABLE Compra_Detalle (
     FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
 );
 
+CREATE TABLE Venta (
+    id_venta INT NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tipo VARCHAR(50) NOT NULL,
+    total DECIMAL(15, 2) NOT NULL,
+    PRIMARY KEY (id_venta)
+);
+
+
