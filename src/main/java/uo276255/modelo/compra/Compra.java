@@ -19,7 +19,26 @@ public class Compra {
         this.total = 0.0;
     }
 
-    public void agregarDetalle(CompraDetalle detalle) {
+    public Compra() {
+	}
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+
+	public void setIdVendedor(int idVendedor) {
+		this.idVendedor = idVendedor;
+	}
+
+	public void setDetalles(List<CompraDetalle> detalles) {
+		this.detalles = detalles;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
+
+	public void agregarDetalle(CompraDetalle detalle) {
         detalles.add(detalle);
         calcularTotal();
     }
