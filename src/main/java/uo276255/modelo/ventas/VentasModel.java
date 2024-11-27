@@ -34,4 +34,21 @@ public class VentasModel {
         return ventas;
     }
 
+    public List<VentaDTO> obtenerVentas() throws SQLException {
+        List<VentaDTO> ventas = new ArrayList<>();
+        String sql = "SELECT id_venta, fecha, tipo, total FROM Venta";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                VentaDTO venta = new VentaDTO();
+                venta.setIdVenta(rs.getInt("id_venta"));
+                venta.setFecha(rs.getTimestamp("fecha"));
+                venta.setTipo(rs.getString("tipo"));
+                venta.setTotal(rs.getBigDecimal("total"));
+                ventas.add(venta);
+            }
+        }
+        return ventas;
+    }
+
 }

@@ -121,29 +121,31 @@ public class VentaController {
         }
     }
     
-    private void generarFacturas() {
+    private void generarFactura(){
+    	List<Compra> compras = null;
+    	List<VentaDTO> ventas = null;
+		try {
+	    	compras = compraModel.obtenerTodasLasCompras();
+			ventas = ventaDAO.obtenerVentas();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
         try {
-            // Solicitar datos del cliente una vez
             Map<String, String> datosCliente = solicitarDatosCliente();
+            System.out.println(datosCliente.toString());
             if (datosCliente == null) {
                 JOptionPane.showMessageDialog(vistaVentas, "Operación cancelada por el usuario.", "Información", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-
-            // Obtener todas las ventas existentes
-            List<VentaDTO> ventas = ventaDAO.obtenerTodasLasVentasConDetalles();
-
-            if (ventas.isEmpty()) {
+            if (ventas.isEmpty() && compras.isEmpty()) {
                 JOptionPane.showMessageDialog(vistaVentas, "No hay ventas para generar facturas.", "Información", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-
-            // Generar factura para cada venta
-            GeneradorFacturaPDF generadorPDF = new GeneradorFacturaPDF();
-            for (VentaDTO venta : ventas) {
-                generadorPDF.generarFactura(venta, datosCliente);
-            }
-
+            
+            GeneradorFacturaPDF pdfGenerator = new GeneradorFacturaPDF();
+            pdfGenerator.generarPDF(datosCliente, ventas, compras);
             JOptionPane.showMessageDialog(vistaVentas, "Facturas generadas exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception ex) {
