@@ -47,4 +47,22 @@ public class ProductoModel{
             return null;
         }
     }
+
+	public Producto obtenerProductoPorId(int idProducto) throws SQLException {
+        String sql = "SELECT * FROM Producto WHERE id_producto = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idProducto);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return new Producto(
+                rs.getInt("id_producto"),
+                rs.getString("nombre"),
+                rs.getString("tipo"),
+                rs.getDouble("precio")
+            );
+        } else {
+            return null;
+        }
+	}
 }

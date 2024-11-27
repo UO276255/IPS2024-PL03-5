@@ -15,7 +15,11 @@ public class CompraDetalle {
         this.precioTotal = cantidad * precioUnitario;
     }
 
-    // Getters y Setters
+    public CompraDetalle() {
+		// TODO Auto-generated constructor stub
+	}
+
+	// Getters y Setters
     public Producto getProducto() { return producto; }
     public int getCantidad() { return cantidad; }
     public void setCantidad(int cantidad) { this.cantidad = cantidad; }
@@ -26,5 +30,17 @@ public class CompraDetalle {
     public void recalcularPrecioTotal() {
         this.precioTotal = this.cantidad * this.precioUnitario;
     }
+
+	public void setProducto(Producto producto) {
+		this.producto = producto;
+	}
+
+	public void setPrecioUnitario(double precioUnitario) {
+		this.precioUnitario = precioUnitario;
+	}
+
+	public void setPrecioTotal(double precioTotal) {
+		this.precioTotal = precioTotal;
+	}
 }
 
