@@ -80,3 +80,34 @@ INSERT INTO acciones (id_accion, id_campaña, id_accionista, en_venta) VALUES
 (4, 1, 4, FALSE),
 (5, 1, 5, TRUE);
 
+INSERT INTO Vendedor (nombre, dni, telefono) VALUES ('Juan Pérez', '12345678A', '555-1234');
+INSERT INTO Producto (nombre, tipo, precio) VALUES
+('Camiseta Oficial', 'Ropa', 19.99),
+('Gorra Personalizada', 'Accesorios', 12.50),
+('Taza con Logo', 'Hogar', 8.75),
+('Póster Edición Limitada', 'Decoración', 15.00),
+('Llavero Metálico', 'Accesorios', 4.50),
+('Sudadera con Capucha', 'Ropa', 29.99),
+('Mochila Deportiva', 'Accesorios', 24.99),
+('Bolígrafo Corporativo', 'Papelería', 2.00),
+('Calendario Anual', 'Papelería', 6.00),
+('Pegatina Vinilo', 'Accesorios', 1.50),
+('Botella Reutilizable', 'Hogar', 10.00),
+('Agenda de Notas', 'Papelería', 7.50),
+('Polo Bordado', 'Ropa', 22.00),
+('Fundas para Móvil', 'Tecnología', 9.99),
+('Auriculares Inalámbricos', 'Tecnología', 35.00);
+
+
+INSERT INTO Venta (id_venta, fecha, tipo, total) VALUES
+(1, '2023-10-01 10:15:00', 'entradas', 150.00),
+(2, '2023-10-02 14:30:00', 'abonos de temporada', 1200.00),
+(3, '2023-10-03 09:45:00', 'reserva instalaciones deportivas', 300.00),
+(4, '2023-10-04 16:20:00', 'campañas de accionistas', 5000.00),
+(5, '2023-10-05 11:10:00', 'entradas', 200.00),
+(6, '2023-10-06 13:50:00', 'abonos de temporada', 800.00),
+(7, '2023-10-07 08:30:00', 'reserva instalaciones deportivas', 450.00),
+(8, '2023-10-08 17:25:00', 'campañas de accionistas', 7000.00),
+(9, '2023-10-09 12:05:00', 'entradas', 175.00),
+(10, '2023-10-10 15:40:00', 'abonos de temporada', 950.00);
+
